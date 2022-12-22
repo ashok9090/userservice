@@ -20,11 +20,11 @@ public interface UserInterface {
 	CompletableFuture<SuperStockiestMaster> getSuperStockiestMaster(int cpid)throws Exception;
 	CompletableFuture<Boolean> saveData(LoginDetails loginDetails, String jwtToken, AuthenticationRequest authenticationRequest, LoginResponse response) throws Exception;
 	CompletableFuture<Boolean> checkForOtp(LoginDetails loginDetails,String jwtToken, AuthenticationRequest authenticationRequest, LoginResponse response)throws Exception;
-	CompletableFuture<LoginResponse> OtpVerification(LoginResponse loginResponse)throws Exception;
+	CompletableFuture<LoginResponse> otpVerification(LoginResponse loginResponse)throws Exception;
 	CompletableFuture<Boolean> logout(String token, LoginDetails loginDetails);
 	CompletableFuture<LoginResponse> allowForRefresh(String deviceid, String token, LoginResponse response) throws Exception;
 	CompletableFuture<Boolean> checkForLogout(String deviceId,String userName);
-	CompletableFuture<UserDetails> FindIdByAuthentication(AuthenticationRequest authenticationRequest)throws Exception;
+	CompletableFuture<UserDetails> findIdByAuthentication(AuthenticationRequest authenticationRequest)throws Exception;
 	
 
 }

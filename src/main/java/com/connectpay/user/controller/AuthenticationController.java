@@ -47,7 +47,6 @@ import com.connectpay.user.util.ManualPasswordEncoder;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.impl.DefaultClaims;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,12 +70,12 @@ public class AuthenticationController {
 	private Gson gson = new Gson();
 
 	private static final Logger _cpLogs = LoggerFactory.getLogger(Constant.CP_LOGIN_LOGS);
-	private static final String _logClassName = AuthenticationController.class.getSimpleName();
+	private static final String logClassName = AuthenticationController.class.getSimpleName();
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<LoginResponse> authenticate(HttpServletRequest request,
 			@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-		_cpLogs.info(_logClassName + "Request For Authentication Login " + gson.toJson(authenticationRequest));
+		_cpLogs.info(logClassName , "Request For Authentication Login "+gson.toJson(authenticationRequest));
 		String jwtToken = "";
 		LoginResponse response = new LoginResponse();
 		try {
@@ -84,7 +83,7 @@ public class AuthenticationController {
 					.authenticate(new UsernamePasswordAuthenticationToken(
 							authenticationRequest.getTerminalId() + ":" + authenticationRequest.getUserName(),
 							authenticationRequest.getPassword()));
-			_cpLogs.info(_logClassName + "Request For Authentication " + gson.toJson(authenticationRequest));
+			_cpLogs.info(logClassName + "Request For Authentication " + gson.toJson(authenticationRequest));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
 			if (authenticationRequest.getDevicetype() != null) {
@@ -109,7 +108,7 @@ public class AuthenticationController {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 			jwtToken = jWTTokenHelper.generateToken(loginDetails.getUsername(), authenticationRequest);
-			_cpLogs.info(_logClassName + "Request For Authentication " + gson.toJson(authenticationRequest));
+			_cpLogs.info(logClassName + "Request For Authentication " + gson.toJson(authenticationRequest));
 			response.setToken(jwtToken);
 			CompletableFuture<Boolean> future = userInterface.saveData(loginDetails, jwtToken, authenticationRequest,
 					response);
@@ -117,8 +116,8 @@ public class AuthenticationController {
 
 			if (otpRequired) {
 				response.setDeviceChangeotpRequired(otpRequired);
-				_cpLogs.info(_logClassName + "inside Otp Required " + gson.toJson(otpRequired));
-				_cpLogs.info(_logClassName + "Response " + gson.toJson(response));
+				_cpLogs.info(logClassName ,"inside Otp Required " + gson.toJson(otpRequired));
+				_cpLogs.info(logClassName , "Response " + gson.toJson(response));
 				return ResponseEntity.status(HttpStatus.OK).body(response);
 			} else {
 				boolean afterFixdaysOtpRequired = false;
@@ -128,11 +127,11 @@ public class AuthenticationController {
 							authenticationRequest, response);
 					afterFixdaysOtpRequired = future1.get();
 				}
-				_cpLogs.info(_logClassName + "inside afterFixdaysOtpRequired " + gson.toJson(afterFixdaysOtpRequired));
+				_cpLogs.info(logClassName + "inside afterFixdaysOtpRequired " + gson.toJson(afterFixdaysOtpRequired));
 				if (afterFixdaysOtpRequired) {
 					response.setAfterFixdaysOtpRequired(afterFixdaysOtpRequired);
 				}
-				_cpLogs.info(_logClassName + "Response " + gson.toJson(response));
+				_cpLogs.info(logClassName + "Response " + gson.toJson(response));
 				return ResponseEntity.status(HttpStatus.OK).body(response);
 			}
 
@@ -151,7 +150,7 @@ public class AuthenticationController {
 	public ResponseEntity<?> refreshtoken(HttpServletRequest request) throws Exception {
 		// From the HttpRequest get the claims
 		String token = jWTTokenHelper.getToken(request);
-		_cpLogs.info(_logClassName + " For Refresh Token =" + token);
+		_cpLogs.info(logClassName + " For Refresh Token =" + token);
 		LoginResponse response = new LoginResponse();
 		try {
 			Map<String, Object> expectedMap = new HashMap<String, Object>();
@@ -159,7 +158,7 @@ public class AuthenticationController {
 			expectedMap = getMapFromIoJsonwebtokenClaims(claims);
 			String deviceid = (String) expectedMap.get("DI");
 			String username = (String) expectedMap.get("sub");
-			_cpLogs.info(_logClassName + " Device Id =" + deviceid);
+			_cpLogs.info(logClassName + " Device Id =" + deviceid);
 			String jwtToken = jWTTokenHelper.doGenerateRefreshToken(expectedMap, expectedMap.get("sub").toString());
 			response.setToken(jwtToken);
 			CompletableFuture<LoginResponse> future = userInterface.allowForRefresh(deviceid, username, response);
@@ -246,7 +245,7 @@ public class AuthenticationController {
 		String token = header.substring(7);
 		log.info("logout  Token=" + token);
 		LoginDetails loginDetails = (LoginDetails) userDetailsService.loadUserByUsername(user.getName());
-		_cpLogs.info(_logClassName + " Logout call for user " + gson.toJson(loginDetails.getUsername()));
+		_cpLogs.info(logClassName + " Logout call for user " + gson.toJson(loginDetails.getUsername()));
 		final Claims claims = jWTTokenHelper.getAllClaimsFromToken(token);
 		Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
 		String deviceid = (String) expectedMap.get("DI");
@@ -263,15 +262,15 @@ public class AuthenticationController {
 
 	@PostMapping("/verifyUser")
 	public ResponseEntity<?> verifyOtp(@RequestBody LoginResponse loginResponse) throws Exception {
-		_cpLogs.info(_logClassName + " verifyUser " + gson.toJson(loginResponse));
+		_cpLogs.info(logClassName + " verifyUser " + gson.toJson(loginResponse));
 		try {
 			String token = loginResponse.getOtpToken();
 			if (token == null) {
 				throw new BadCredentialsException("OtpToken Can't be blank");
 			} else {
-				CompletableFuture<LoginResponse> future = userInterface.OtpVerification(loginResponse);
+				CompletableFuture<LoginResponse> future = userInterface.otpVerification(loginResponse);
 				loginResponse = future.get();
-				_cpLogs.info(_logClassName + " OTP verify Status = " + gson.toJson(loginResponse));
+				_cpLogs.info(logClassName + " OTP verify Status = " + gson.toJson(loginResponse));
 				loginResponse.setDeviceId(null);
 				loginResponse.setOtp(null);
 				loginResponse.setOtpToken(null);
@@ -281,13 +280,13 @@ public class AuthenticationController {
 					} else {
 						loginResponse.setAfterFixdaysOtpRequired(false);
 						loginResponse.setDeviceChangeotpRequired(false);
-						_cpLogs.info(_logClassName + " OTP verify Response = " + gson.toJson(loginResponse));
+						_cpLogs.info(logClassName + " OTP verify Response = " + gson.toJson(loginResponse));
 						return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 					}
 				} else {
 					loginResponse.setAfterFixdaysOtpRequired(false);
 					loginResponse.setDeviceChangeotpRequired(false);
-					_cpLogs.info(_logClassName + " OTP verify Response = " + gson.toJson(loginResponse));
+					_cpLogs.info(logClassName + " OTP verify Response = " + gson.toJson(loginResponse));
 					return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 				}
 			}
@@ -302,7 +301,7 @@ public class AuthenticationController {
 	public ResponseEntity<?> getLoggedInIdForExposeApi(HttpServletRequest request,
 			@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
 		try {
-			CompletableFuture<UserDetails> cpid = userInterface.FindIdByAuthentication(authenticationRequest);
+			CompletableFuture<UserDetails> cpid = userInterface.findIdByAuthentication(authenticationRequest);
 			return ResponseEntity.status(HttpStatus.OK).body(cpid.get());
 		} catch (Exception e) {
 			// TODO: handle exception

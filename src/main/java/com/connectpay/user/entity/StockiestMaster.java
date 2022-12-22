@@ -200,11 +200,11 @@ public class StockiestMaster implements Serializable{
 	@Column(name = "aadharnumber")
 	private String aadharNumber;
 	
-	/*
-	 * @Column(name = "wbalance",nullable=false) private double wBalance;
-	 * 
-	 * @Column(name = "abalance",nullable=false) private double aBalance;
-	 */
+	
+	 @Column(name = "wbalance",nullable=false) private double wBalance;
+	 
+	 @Column(name = "abalance",nullable=false) private double aBalance;
+	
 	
 	@Column(name = "paymenttype",nullable=false)
 	private String paymenttype;

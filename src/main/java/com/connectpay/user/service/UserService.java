@@ -74,8 +74,7 @@ public class UserService implements UserInterface {
 	private static final String _logClassName = AuthenticationController.class.getSimpleName();
 
 	public Login saveUser(Login user) {
-		// log.info("Inside saveUser of UserService");
-		return null;
+		return loginRepository.save(user);
 	}
 
 	@Override
@@ -86,13 +85,11 @@ public class UserService implements UserInterface {
 
 	@Override
 	public CompletableFuture<RetailerMaster> getRetailer(int cpid) throws Exception {
-		// TODO Auto-generated method stub
 		return CompletableFuture.completedFuture(retailerMasterRepository.findById(cpid));
 	}
 
 	@Override
 	public CompletableFuture<StockiestMaster> getStockiestMaster(int cpid) throws Exception {
-		// TODO Auto-generated method stub
 		return CompletableFuture.completedFuture(stockiestMasterRepository.findById(cpid));
 	}
 
@@ -197,7 +194,7 @@ public class UserService implements UserInterface {
 		try {
 			smsUtility.sendOtpForLogin(csLogin, firsttimeloginotptemplate,deviceId);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -219,7 +216,7 @@ public class UserService implements UserInterface {
 	}
 
 	@Override
-	public CompletableFuture<LoginResponse> OtpVerification(LoginResponse loginResponse) throws Exception {
+	public CompletableFuture<LoginResponse> otpVerification(LoginResponse loginResponse) throws Exception {
 		// TODO Auto-generated method stub
 		OTPToken otpToken=new OTPToken();
 		try {
@@ -324,7 +321,7 @@ public class UserService implements UserInterface {
 	 */
 	@Async("taskExecutor")
 	@Override
-	public CompletableFuture<UserDetails> FindIdByAuthentication(AuthenticationRequest authenticationRequest) throws Exception{
+	public CompletableFuture<UserDetails> findIdByAuthentication(AuthenticationRequest authenticationRequest) throws Exception{
 		// TODO Auto-generated method stub
 		Login login=loginRepository.findByTerminalid(authenticationRequest.getTerminalId());
 		int rid=0;

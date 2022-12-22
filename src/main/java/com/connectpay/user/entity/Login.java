@@ -43,7 +43,6 @@ public class Login implements Serializable {
 	@Column(name="userid")
 	private String userID;
 	
-	@JsonIgnore
 	@NotNull
 	@Column(name="password")
 	private String password;

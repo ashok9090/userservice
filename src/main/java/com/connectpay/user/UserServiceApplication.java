@@ -38,6 +38,7 @@ public class UserServiceApplication {
 	public RestTemplate restTemplate() {
 		HttpComponentsClientHttpRequestFactory clientHttpRequestFactory=new HttpComponentsClientHttpRequestFactory();
 		clientHttpRequestFactory.setConnectTimeout(3600);
+		clientHttpRequestFactory.setBufferRequestBody(false);
 		return new RestTemplate(clientHttpRequestFactory);
 	}
 }

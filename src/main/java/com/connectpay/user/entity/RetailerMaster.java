@@ -18,6 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
@@ -29,7 +30,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(Include.NON_NULL)
 @Table(name = "retailer_master")
 @NamedQuery(name = "RetailerMaster.findAll", query = "SELECT z FROM RetailerMaster z")
 public class RetailerMaster implements Serializable {
@@ -259,10 +259,12 @@ public class RetailerMaster implements Serializable {
 	@Column(name = "epagentid", nullable = false)
 	private String epagentid;
 
+	@JsonProperty("aBalance")
 	@Column(name = "abalance", nullable = false)
 	private double aBalance;
 
 	@Column(name = "wbalance", nullable = false)
+	@JsonProperty("wBalance")
 	private double wBalance;
 
 	@Column(name = "latittude", nullable = false)

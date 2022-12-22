@@ -2,6 +2,7 @@ package com.connectpay.user.secuirity;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import com.connectpay.user.exception.ErrorDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -30,8 +32,9 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		String message;
 
 		if (exception != null) {
+			ErrorDetails details=new ErrorDetails(new Date(),  exception.toString(), request.getRequestURI());
 
-			byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("cause", exception.toString()));
+			byte[] body = new ObjectMapper().writeValueAsBytes(details);
 
 			response.getOutputStream().write(body);
 
@@ -42,8 +45,8 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 			} else {
 				message = authException.getMessage();
 			}
-
-			byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("error", message));
+			ErrorDetails details=new ErrorDetails(new Date(),  message, request.getRequestURI());
+			byte[] body = new ObjectMapper().writeValueAsBytes(details);
 
 			response.getOutputStream().write(body);
 		}
